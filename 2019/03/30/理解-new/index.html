@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="小山的博客">
 <meta property="og:description" content="理解构造方法__new__的最好方式:先看一下python构建对象的过程, 下面是伪代码: def object_maker(the_class, some_arg):     new_object = the_class.__new__(some_arg)     if isinstance(new_object, the_class):         the_class.__init__(n">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-03-30T11:53:53.717Z">
+<meta property="og:updated_time" content="2019-03-30T11:59:09.236Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="理解__new__">
 <meta name="twitter:description" content="理解构造方法__new__的最好方式:先看一下python构建对象的过程, 下面是伪代码: def object_maker(the_class, some_arg):     new_object = the_class.__new__(some_arg)     if isinstance(new_object, the_class):         the_class.__init__(n">
@@ -92,7 +92,7 @@
     if isinstance(new_object, the_class):
         the_class.__init__(new_object, some_arg)
     return new_object
-</code></pre><p>下面会对这段伪代码进行说明, <strong>理解了这段伪代码基本就知道__init__是怎么回事了.</strong></p>
+</code></pre><p>下面会对这段伪代码进行说明, <strong>理解了这段伪代码基本就知道__new__是怎么回事了.</strong></p>
 <p>我会构造一个继承自float的类, 把字符串转换成浮点数, 本身是浮点数转换成整数</p>
 <pre><code>class convert(float):
     def __new__(cls, digit):

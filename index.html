@@ -90,7 +90,7 @@
     if isinstance(new_object, the_class):
         the_class.__init__(new_object, some_arg)
     return new_object
-</code></pre><p>下面会对这段伪代码进行说明, <strong>理解了这段伪代码基本就知道__init__是怎么回事了.</strong></p>
+</code></pre><p>下面会对这段伪代码进行说明, <strong>理解了这段伪代码基本就知道__new__是怎么回事了.</strong></p>
 <p>我会构造一个继承自float的类, 把字符串转换成浮点数, 本身是浮点数转换成整数</p>
 <pre><code>class convert(float):
     def __new__(cls, digit):
