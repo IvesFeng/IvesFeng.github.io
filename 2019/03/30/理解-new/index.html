@@ -3,15 +3,19 @@
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
   
-  <title>小山的博客</title>
+  <title>理解__new__ | 小山的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="小山的博客">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="理解构造方法__new__的最好方式:先看一下python构建对象的过程, 下面是伪代码: def object_maker(the_class, some_arg):     new_object = the_class.__new__(some_arg)     if isinstance(new_object, the_class):         the_class.__init__(n">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解__new__">
+<meta property="og:url" content="http://yoursite.com/2019/03/30/理解-new/index.html">
 <meta property="og:site_name" content="小山的博客">
+<meta property="og:description" content="理解构造方法__new__的最好方式:先看一下python构建对象的过程, 下面是伪代码: def object_maker(the_class, some_arg):     new_object = the_class.__new__(some_arg)     if isinstance(new_object, the_class):         the_class.__init__(n">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-30T11:53:53.717Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="小山的博客">
+<meta name="twitter:title" content="理解__new__">
+<meta name="twitter:description" content="理解构造方法__new__的最好方式:先看一下python构建对象的过程, 下面是伪代码: def object_maker(the_class, some_arg):     new_object = the_class.__new__(some_arg)     if isinstance(new_object, the_class):         the_class.__init__(n">
   
     <link rel="alternate" href="/atom.xml" title="小山的博客" type="application/atom+xml">
   
@@ -60,9 +64,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-理解-new" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-理解-new" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/03/30/理解-new/" class="article-date">
   <time datetime="2019-03-30T07:16:00.000Z" itemprop="datePublished">2019-03-30</time>
@@ -75,8 +77,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/03/30/理解-new/">理解__new__</a>
+    <h1 class="article-title" itemprop="name">
+      理解__new__
     </h1>
   
 
@@ -132,140 +134,19 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-理解python元类" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/03/29/理解python元类/" class="article-date">
-  <time datetime="2019-03-29T09:47:00.000Z" itemprop="datePublished">2019-03-29</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/03/29/理解python元类/">理解python元类</a>
-    </h1>
+    <a href="/2019/03/29/理解python元类/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">理解python元类</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <pre><code>def record_factory(cls_name, field_names):
-    try:
-        field_names = field_names.replace(&apos;,&apos;, &apos; &apos;).split()
-    except AttributeError:
-        pass
-    field_names = tuple(field_names)
-
-    def __init__(self, *args, **kwargs):
-        attrs = dict(zip(self.__slots__, args))
-        attrs.update(kwargs)
-        for name, value in attrs.items():
-            setattr(self, name, value)
-
-    def __iter__(self):
-        for name in self.__slots__:
-            yield getattr(self, name)
-
-    def __repr__(self):
-        values = &apos;, &apos;.join(&apos;{}={!r}&apos;.format(*i) for i
-                           in zip(self.__slots__, self))
-        return &apos;{}({})&apos;.format(self.__class__.__name__, values)
-
-    cls_attrs = dict(__slots__ = field_names,
-                     __init__ = __init__,
-                     __iter__ = __iter__,
-                     __repr__ = __repr__)
-
-    return type(cls_name, (object, ), cls_attrs)
-
-
-# 为了控制类的创建和初始化, 元类将覆盖__new__和__init__方法
-class MetaSingleton(type):
-    _instance = {}  # 用字典维护, 其它类不会是同一个
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instance:
-            cls._instance[cls] = super(MetaSingleton,
-                         cls).__call__(*args, **kwargs)
-        return cls._instance[cls]
-
-
-class Logger(metaclass=MetaSingleton):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
-logger1 = Logger(5, 6)
-logger2 = Logger(2, 3)
-print(logger1, logger2, logger1.x, logger2.x)
-</code></pre>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/29/理解python元类/" data-id="cjtvfs3zy0002ocuw8zk4b8ta" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
   
 </article>
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/03/29/hello-world/" class="article-date">
-  <time datetime="2019-03-29T08:26:14.247Z" itemprop="datePublished">2019-03-29</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/03/29/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/29/hello-world/" data-id="cjtvfs3zm0001ocuwwr0pxof1" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 </section>
         

@@ -5,17 +5,17 @@
   
   <title>理解python元类 | 小山的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="这是一篇测试文章，欢迎关注作者博客[1]: https://zhangslob.github.io/">
+  <meta name="description" content="def record_factory(cls_name, field_names):     try:         field_names = field_names.replace(&amp;apos;,&amp;apos;, &amp;apos; &amp;apos;).split()     except AttributeError:         pass     field_names = tuple(fiel">
 <meta property="og:type" content="article">
 <meta property="og:title" content="理解python元类">
 <meta property="og:url" content="http://yoursite.com/2019/03/29/理解python元类/index.html">
 <meta property="og:site_name" content="小山的博客">
-<meta property="og:description" content="这是一篇测试文章，欢迎关注作者博客[1]: https://zhangslob.github.io/">
+<meta property="og:description" content="def record_factory(cls_name, field_names):     try:         field_names = field_names.replace(&amp;apos;,&amp;apos;, &amp;apos; &amp;apos;).split()     except AttributeError:         pass     field_names = tuple(fiel">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-03-29T09:47:55.725Z">
+<meta property="og:updated_time" content="2019-03-30T07:14:48.189Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="理解python元类">
-<meta name="twitter:description" content="这是一篇测试文章，欢迎关注作者博客[1]: https://zhangslob.github.io/">
+<meta name="twitter:description" content="def record_factory(cls_name, field_names):     try:         field_names = field_names.replace(&amp;apos;,&amp;apos;, &amp;apos; &amp;apos;).split()     except AttributeError:         pass     field_names = tuple(fiel">
   
     <link rel="alternate" href="/atom.xml" title="小山的博客" type="application/atom+xml">
   
@@ -67,7 +67,7 @@
         <section id="main"><article id="post-理解python元类" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/03/29/理解python元类/" class="article-date">
-  <time datetime="2019-03-29T09:47:01.000Z" itemprop="datePublished">2019-03-29</time>
+  <time datetime="2019-03-29T09:47:00.000Z" itemprop="datePublished">2019-03-29</time>
 </a>
     
   </div>
@@ -86,12 +86,60 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>这是一篇测试文章，欢迎关注作者博客[1]: <a href="https://zhangslob.github.io/" target="_blank" rel="noopener">https://zhangslob.github.io/</a></p>
+        <pre><code>def record_factory(cls_name, field_names):
+    try:
+        field_names = field_names.replace(&apos;,&apos;, &apos; &apos;).split()
+    except AttributeError:
+        pass
+    field_names = tuple(field_names)
 
+    def __init__(self, *args, **kwargs):
+        attrs = dict(zip(self.__slots__, args))
+        attrs.update(kwargs)
+        for name, value in attrs.items():
+            setattr(self, name, value)
+
+    def __iter__(self):
+        for name in self.__slots__:
+            yield getattr(self, name)
+
+    def __repr__(self):
+        values = &apos;, &apos;.join(&apos;{}={!r}&apos;.format(*i) for i
+                           in zip(self.__slots__, self))
+        return &apos;{}({})&apos;.format(self.__class__.__name__, values)
+
+    cls_attrs = dict(__slots__ = field_names,
+                     __init__ = __init__,
+                     __iter__ = __iter__,
+                     __repr__ = __repr__)
+
+    return type(cls_name, (object, ), cls_attrs)
+
+
+# 为了控制类的创建和初始化, 元类将覆盖__new__和__init__方法
+class MetaSingleton(type):
+    _instance = {}  # 用字典维护, 其它类不会是同一个
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instance:
+            cls._instance[cls] = super(MetaSingleton,
+                         cls).__call__(*args, **kwargs)
+        return cls._instance[cls]
+
+
+class Logger(metaclass=MetaSingleton):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+logger1 = Logger(5, 6)
+logger2 = Logger(2, 3)
+print(logger1, logger2, logger1.x, logger2.x)
+</code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/29/理解python元类/" data-id="cjttvwlrv0001vwuwrukz1pfk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/03/29/理解python元类/" data-id="cjtvfs3zy0002ocuw8zk4b8ta" class="article-share-link">Share</a>
       
       
     </footer>
@@ -99,6 +147,15 @@
   
     
 <nav id="article-nav">
+  
+    <a href="/2019/03/30/理解-new/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          理解__new__
+        
+      </div>
+    </a>
   
   
     <a href="/2019/03/29/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
@@ -138,6 +195,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/03/30/理解-new/">理解__new__</a>
+          </li>
         
           <li>
             <a href="/2019/03/29/理解python元类/">理解python元类</a>
